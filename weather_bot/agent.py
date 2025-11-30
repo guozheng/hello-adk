@@ -10,7 +10,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 import logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.ERROR)
 
 import dotenv
 dotenv.load_dotenv()
@@ -74,20 +74,24 @@ async def run_query(query: str, user_id: str, session_id: str):
         ]
     )
 
+    print(f"Running query: {query}")
+
     # default response
     response = "no response from agent"
 
     async for event in runner.run_async(user_id=user_id, session_id=session_id, new_message=content):
-        if event.is_final_response:
+        if event.is_final_response():
             if event.content and event.content.parts:
-                response = event.content.parts[0].text
+                for part in event.content.parts:
+                    if part.text:
+                        response = part.text
             elif event.actions and event.actions.escalate:
                 response = f"Agent escalated: {event.error_message} or 'No specific message'"
             else:
                 response = "No response from agent"
             break
 
-    logging.info(f"Agent response: {response}")
+    print(f"Agent response: {response}\n")
 
 async def main():
     await session_service.create_session(
