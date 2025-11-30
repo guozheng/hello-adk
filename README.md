@@ -13,7 +13,7 @@ uv sync
 To create a new agent, run:
 
 ```bash
-adk new <directory>
+adk create <directory>
 ```
 
 This will create a new agent in the root directory.
